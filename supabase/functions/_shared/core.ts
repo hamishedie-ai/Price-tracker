@@ -123,7 +123,7 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
 export async function sendDropEmail(to: string, it: Item, oldPrice: number) {
   const user = Deno.env.get("GMAIL_USER"), pass = Deno.env.get("GMAIL_APP_PASSWORD");
-  if (!user || !pass) { console.warn("email not set up"); return; }
+  if (!user || !pass) throw new Error("Email is not set up (GMAIL_USER, GMAIL_APP_PASSWORD)");
   const hit = it.target != null && it.price != null && Number(it.price) <= Number(it.target);
   const name = it.title ?? it.url;
   const subject = `${hit ? "Target price hit" : "Price drop"}: ${name}`.slice(0, 150);
