@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src https://vsbpaiqdvxqyfydlkuso.supabase.co wss://vsbpaiqdvxqyfydlkuso.supabase.co; img-src 'self' https: data:; style-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Price Watch</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Prices">
+  <meta name="theme-color" content="#0f1513">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Log in -->
+  <main id="login" class="screen" hidden>
+    <div class="login-card">
+      <img src="icon.svg" alt="" class="login-logo">
+      <h1>Price Watch</h1>
+      <form id="login-form">
+        <input id="email" type="email" autocomplete="username" placeholder="Email" required>
+        <input id="pw" type="password" autocomplete="current-password" placeholder="Password" required>
+        <button type="submit" class="btn primary">Log in</button>
+        <p id="login-msg" class="msg" role="alert"></p>
+        <p class="note">Invite only. Ask the person who sent you the link for an account.</p>
+      </form>
+    </div>
+  </main>
+
+  <!-- First login: choose a password -->
+  <main id="newpw" class="screen" hidden>
+    <div class="login-card">
+      <h1>Choose your password</h1>
+      <form id="newpw-form">
+        <input id="newpw1" type="password" autocomplete="new-password" placeholder="New password (10+ characters)" minlength="10" required>
+        <input id="newpw2" type="password" autocomplete="new-password" placeholder="Type it again" minlength="10" required>
+        <button type="submit" class="btn primary">Save password</button>
+        <p id="newpw-msg" class="msg" role="alert"></p>
+      </form>
+    </div>
+  </main>
+
+  <!-- Main app -->
+  <main id="app" class="screen" hidden>
+    <header class="top">
+      <h1>Price Watch</h1>
+      <span id="summary" class="summary"></span>
+    </header>
+    <nav class="tabs">
+      <button class="btn small" data-tab="list" aria-pressed="true">My list</button>
+      <button class="btn small" data-tab="settings" aria-pressed="false">Settings</button>
+      <button class="btn small" data-tab="people" aria-pressed="false" id="tab-people" hidden>People</button>
+    </nav>
+
+    <section id="tab-list">
+      <form id="add-form" class="add">
+        <input id="url" type="url" inputmode="url" placeholder="Paste a product link" required autocomplete="off">
+        <div class="add-row">
+          <input id="target" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Alert below $ (optional)">
+          <button type="submit" id="add-btn" class="btn primary">Watch</button>
+        </div>
+        <p id="add-msg" class="msg" role="status"></p>
+      </form>
+      <section id="list" class="list" aria-live="polite"></section>
+      <p id="empty" class="empty" hidden>Nothing watched yet. Paste a product link above.</p>
+    </section>
+
+    <section id="tab-settings" hidden>
+      <div class="panel">
+        <h2>Alerts</h2>
+        <label class="toggle"><input id="alerts-on" type="checkbox"> Email me when a price drops</label>
+        <p class="note">Emails go to <span id="my-email"></span>. Prices are checked about every 6 hours.</p>
+      </div>
+      <div class="panel">
+        <h2>Password</h2>
+        <form id="chpw-form">
+          <input id="chpw1" type="password" autocomplete="new-password" placeholder="New password (10+ characters)" minlength="10" required>
+          <button type="submit" class="btn">Change password</button>
+          <p id="chpw-msg" class="msg" role="status"></p>
+        </form>
+      </div>
+      <div class="panel">
+        <button id="logout" class="btn">Log out</button>
+      </div>
+    </section>
+
+    <section id="tab-people" hidden>
+      <div class="panel">
+        <h2>Invite someone</h2>
+        <form id="invite-form">
+          <input id="inv-name" type="text" placeholder="Their name" maxlength="60" autocomplete="off">
+          <input id="inv-email" type="email" placeholder="Their email" required autocomplete="off">
+          <button type="submit" class="btn primary" id="inv-btn">Make account</button>
+          <p id="inv-msg" class="msg" role="status"></p>
+        </form>
+        <div id="inv-out-wrap" hidden>
+          <p class="note">Send them this message. The password works once; they choose their own at first login.</p>
+          <pre id="inv-out" class="invite-out"></pre>
+          <button id="inv-copy" class="btn small">Copy message</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>People</h2>
+        <div id="members"></div>
+      </div>
+    </section>
+  </main>
+
+  <template id="card-tpl">
+    <article class="card">
+      <img class="thumb" alt="" loading="lazy" referrerpolicy="no-referrer">
+      <div class="info">
+        <a class="title" target="_blank" rel="noopener noreferrer"></a>
+        <div class="price-row">
+          <span class="price"></span>
+          <span class="badge"></span>
+        </div>
+        <div class="meta"></div>
+        <div class="err"></div>
+        <div class="actions">
+          <button class="btn small act-check">Check now</button>
+          <button class="btn small act-target">Alert price</button>
+          <button class="btn small danger act-del">Remove</button>
+        </div>
+      </div>
+    </article>
+  </template>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
