@@ -5,6 +5,7 @@ services:
     container_name: pricewatch-worker
     build: .
     image: pricewatch-worker:local
+    labels: { diun.enable: "false" }   # local build: no update check
     env_file: .env
     environment:
       BROWSER_WS: ws://browser:3000
