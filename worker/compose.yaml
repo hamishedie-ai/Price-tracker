@@ -11,6 +11,7 @@ services:
       POLL_SECONDS: "60"
     depends_on: [browser]
     mem_limit: 256m
+    networks: [pw_net]
     restart: unless-stopped
   browser:
     container_name: pricewatch-browser
@@ -23,3 +24,14 @@ services:
       MAX_CONCURRENT_CHROME_PROCESSES: "2"
     mem_limit: 1g
     restart: unless-stopped
+    networks: [pw_net]
+# Fixed subnet: the host firewall (pricewatch-firewall.service) lets it reach the internet only,
+# never the home network, Tailscale or services on the server.
+networks:
+  pw_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-pricewatch
+    ipam:
+      config:
+        - subnet: 172.30.250.0/24

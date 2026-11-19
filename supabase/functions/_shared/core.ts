@@ -125,7 +125,7 @@ export async function sendDropEmail(to: string, it: Item, oldPrice: number) {
   const user = Deno.env.get("GMAIL_USER"), pass = Deno.env.get("GMAIL_APP_PASSWORD");
   if (!user || !pass) throw new Error("Email is not set up (GMAIL_USER, GMAIL_APP_PASSWORD)");
   const hit = it.target != null && it.price != null && Number(it.price) <= Number(it.target);
-  const name = it.title ?? it.url;
+  const name = (it.title ?? it.url).replace(/[\r\n\t]+/g, " ").trim();  // no header injection via shop titles
   const subject = `${hit ? "Target price hit" : "Price drop"}: ${name}`.slice(0, 150);
   const line = `Now ${money(it.price, it.currency)}, was ${money(oldPrice, it.currency)}.`;
   const client = new SMTPClient({ connection: { hostname: "smtp.gmail.com", port: 465, tls: true, auth: { username: user, password: pass } } });

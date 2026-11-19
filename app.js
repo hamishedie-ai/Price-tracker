@@ -5,6 +5,8 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = "https://vsbpaiqdvxqyfydlkuso.supabase.co";
 const SUPABASE_KEY = "sb_publishable_zcgFjDusNOXiDlUawMJ4aA_fFJ2sbs3"; // public key; safe in the page (RLS protects data)
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+// Stop other sites from showing this app inside a frame (clickjacking).
+if (window.top !== window.self) { document.documentElement.hidden = true; throw new Error("framed"); }
 const SITE = location.origin + location.pathname;
 
 const $ = (id) => document.getElementById(id);
