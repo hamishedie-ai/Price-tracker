@@ -226,7 +226,7 @@ async function enter() {
   if (me.must_change_password) { show("newpw"); return; }
   $("my-email").textContent = me.email;
   $("alerts-on").checked = me.alerts_on;
-  $("tab-people").hidden = !me.is_admin;
+  $("people-btn").hidden = !me.is_admin;
   show("app");
   loadItems();
 }
